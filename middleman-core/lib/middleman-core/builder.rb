@@ -38,10 +38,7 @@ module Middleman
       @glob = opts.fetch(:glob)
       @cleaning = opts.fetch(:clean)
       @parallel = opts.fetch(:parallel, true)
-
-      rack_app = ::Middleman::Rack.new(@app).to_app
-      @rack = ::Rack::MockRequest.new(rack_app)
-
+      
       @callbacks = ::Middleman::CallbackManager.new
       @callbacks.install_methods!(self, [:on_build_event])
     end
@@ -229,11 +226,11 @@ module Middleman
           if resource.binary?
             export_file!(output_file, resource.file_descriptor[:full_path])
           else
-            response = @rack.get(::URI.escape(resource.request_path))
+            body = resource.render({}, {})
 
             # If we get a response, save it to a tempfile.
-            if response.status == 200
-              export_file!(output_file, binary_encode(response.body))
+            if true
+              export_file!(output_file, binary_encode(body))
             else
               trigger(:error, output_file, response.body)
               return false
